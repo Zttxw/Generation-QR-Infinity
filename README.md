@@ -1,34 +1,38 @@
-# app
+# Generador de QR (QR Eterno) - V1.0
 
-An Electron application with React and TypeScript
+Aplicación de escritorio **Offline-First** orientada a la seguridad y la inmutabilidad para la generación estática de códigos QR, diseñada para áreas de contabilidad y tesorería.
 
-## Recommended IDE Setup
+## Características Principales
+- **Offline-First:** Funciona completamente sin internet y sin dependencias de servicios externos. Base de datos SQLite embebida.
+- **Inmutabilidad:** Una vez creado un QR, su URL de destino no puede modificarse por diseño.
+- **Gestión por Proyectos:** Agrupa los QRs en proyectos para mayor orden.
+- **Personalización Visual:** Soporte para cambiar el color principal y de fondo, y adjuntar un Logo nativo (con prevención de colisiones por UUID).
+- **Exportación:** Soporte individual (SVG, PNG) y exportación masiva de proyectos.
 
-- [VSCode](https://code.visualstudio.com/) + [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) + [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+## Configuración de Desarrollo (Setup)
 
-## Project Setup
+Requiere **Node.js** y npm.
 
-### Install
+1. **Instalar dependencias y módulos nativos:**
+   ```bash
+   npm install
+   ```
+   > *Nota:* El proyecto incluye un script `postinstall` que ejecuta `@electron/rebuild` automáticamente sobre `better-sqlite3` para asegurar la paridad del ABI de Node con el motor de Electron.
 
-```bash
-$ npm install
-```
+2. **Levantar el entorno de desarrollo:**
+   ```bash
+   npm run dev
+   ```
 
-### Development
+3. **Verificación de tipos (Typecheck):**
+   ```bash
+   npm run typecheck
+   ```
 
-```bash
-$ npm run dev
-```
+## Documentación Técnica
 
-### Build
-
-```bash
-# For windows
-$ npm run build:win
-
-# For macOS
-$ npm run build:mac
-
-# For Linux
-$ npm run build:linux
-```
+La arquitectura y decisiones están en la carpeta `/docs/`:
+- [Product Requirements Document (PRD)](./docs/PRD.md)
+- [ADR 001: Generación de QRs Estáticos](./docs/adr/001-qr-generation.md)
+- [ADR 002: Base de Datos Local con SQLite](./docs/adr/002-local-database.md)
+- [Issues & Vertical Slices](./docs/issues.md)
