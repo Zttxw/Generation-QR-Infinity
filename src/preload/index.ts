@@ -6,7 +6,9 @@ const api = {
   db: {
     getProjects: () => ipcRenderer.invoke('db:get-projects'),
     createProject: (name: string) => ipcRenderer.invoke('db:create-project', name),
-    deleteProject: (id: number) => ipcRenderer.invoke('db:delete-project', id)
+    deleteProject: (id: number) => ipcRenderer.invoke('db:delete-project', id),
+    createQR: (data: any) => ipcRenderer.invoke('db:create-qr', data),
+    getQRsByProject: (projectId: number) => ipcRenderer.invoke('db:get-qrs-by-project', projectId)
   }
 }
 

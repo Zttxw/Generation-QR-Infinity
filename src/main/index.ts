@@ -3,6 +3,7 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import Database from 'better-sqlite3'
 import { initDB, createProject, getProjects, deleteProject } from './db/projects'
+import { createQR, getQRsByProject } from './db/qrs'
 import icon from '../../resources/icon.png?asset'
 
 const dbPath = join(app.getPath('userData'), 'qr-eterno.sqlite')
@@ -59,6 +60,10 @@ app.whenReady().then(() => {
   ipcMain.handle('db:get-projects', () => getProjects(db))
   ipcMain.handle('db:create-project', (_, name: string) => createProject(db, name))
   ipcMain.handle('db:delete-project', (_, id: number) => deleteProject(db, id))
+
+  // IPC handlers para QRs
+  ipcMain.handle('db:create-qr', (_, data) => createQR(db, data))
+  ipcMain.handle('db:get-qrs-by-project', (_, projectId: number) => getQRsByProject(db, projectId))
 
   ipcMain.on('ping', () => console.log('pong'))
 

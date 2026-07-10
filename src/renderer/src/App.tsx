@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
 import { Plus, Trash2, QrCode, FolderGit2 } from 'lucide-react'
+import ProjectDetail from './ProjectDetail'
 import './assets/main.css'
 
 export default function App() {
   const [projects, setProjects] = useState<any[]>([])
+  const [activeProject, setActiveProject] = useState<any | null>(null)
   const [showModal, setShowModal] = useState(false)
   const [newProjectName, setNewProjectName] = useState('')
   const [projectToDelete, setProjectToDelete] = useState<number | null>(null)
@@ -33,6 +35,10 @@ export default function App() {
     loadProjects()
   }
 
+  if (activeProject) {
+    return <ProjectDetail project={activeProject} onBack={() => setActiveProject(null)} />
+  }
+
   return (
     <div className="container">
       <header className="header">
@@ -57,10 +63,10 @@ export default function App() {
               <h3>{p.name}</h3>
               <p className="date">Creado: {new Date(p.created_at).toLocaleDateString()}</p>
               <div className="actions">
-                <button className="btn-danger-outline" onClick={() => setProjectToDelete(p.id)}>
+                <button className="btn-danger-outline" onClick={(e) => { e.stopPropagation(); setProjectToDelete(p.id); }}>
                   <Trash2 size={16} /> Eliminar
                 </button>
-                <button className="btn-secondary">Abrir</button>
+                <button className="btn-secondary" onClick={() => setActiveProject(p)}>Abrir</button>
               </div>
             </div>
           ))
