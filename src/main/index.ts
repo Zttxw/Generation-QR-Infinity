@@ -1,6 +1,6 @@
 import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join, extname } from 'path'
-import { copyFileSync, mkdirSync, readFileSync } from 'fs'
+import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
 import { randomUUID } from 'crypto'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import Database from 'better-sqlite3'
@@ -103,6 +103,42 @@ app.whenReady().then(() => {
     } catch (e) {
       return null;
     }
+  })
+
+  // IPC handlers para Exportación (Issue 5)
+  ipcMain.handle('fs:export-svg', async (_, filename: string, svgContent: string) => {
+    const { canceled, filePath } = await dialog.showSaveDialog({
+      title: 'Exportar Código QR',
+      defaultPath: `${filename}.svg`,
+      filters: [{ name: 'Gráficos Vectoriales Escalares (SVG)', extensions: ['svg'] }]
+    })
+    
+    if (canceled || !filePath) return false;
+    
+    const finalSvg = svgContent.includes('xmlns') ? svgContent : svgContent.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
+    writeFileSync(filePath, finalSvg);
+    return true;
+  })
+
+  ipcMain.handle('fs:export-batch', async (_, files: {filename: string, content: string}[]) => {
+    const { canceled, filePaths } = await dialog.showOpenDialog({
+      title: 'Seleccionar Carpeta para Exportación en Lote',
+      properties: ['openDirectory', 'createDirectory']
+    })
+    
+    if (canceled || filePaths.length === 0) return 0;
+    
+    const targetDir = filePaths[0];
+    let count = 0;
+    
+    for (const file of files) {
+      const safeName = file.filename.replace(/[/\\?%*:|"<>]/g, '-');
+      const finalSvg = file.content.includes('xmlns') ? file.content : file.content.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
+      writeFileSync(join(targetDir, `${safeName}.svg`), finalSvg);
+      count++;
+    }
+    
+    return count;
   })
 
   ipcMain.on('ping', () => console.log('pong'))

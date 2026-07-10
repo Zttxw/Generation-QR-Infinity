@@ -15,9 +15,18 @@ export default function QRCard({ qr, onEdit, onDelete }: { qr: any, onEdit: (qr:
     fetchLogo()
   }, [qr.logo_path])
 
+  const handleExport = async () => {
+    const wrapper = document.getElementById(`qr-wrapper-${qr.id}`)
+    if (!wrapper) return
+    const svgElement = wrapper.querySelector('svg')
+    if (!svgElement) return
+    const svgString = new XMLSerializer().serializeToString(svgElement)
+    await window.api.fs.exportSvg(qr.name, svgString)
+  }
+
   return (
     <div className="project-card" style={{ alignItems: 'center', textAlign: 'center' }}>
-      <div style={{ background: 'white', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>
+      <div id={`qr-wrapper-${qr.id}`} style={{ background: 'white', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>
         <QRCodeSVG 
           value={qr.url} 
           size={180} 
@@ -38,7 +47,7 @@ export default function QRCard({ qr, onEdit, onDelete }: { qr: any, onEdit: (qr:
       {qr.notas && <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>{qr.notas}</p>}
       <div className="actions" style={{ width: '100%', justifyContent: 'center', marginTop: '1rem' }}>
         <button className="btn-secondary" onClick={() => onEdit(qr)}>Editar</button>
-        <button className="btn-primary">Exportar</button>
+        <button className="btn-primary" onClick={handleExport}>Exportar</button>
         <button className="btn-danger-outline" style={{ padding: '0.5rem' }} onClick={() => onDelete(qr.id)} title="Eliminar QR">
           <Trash2 size={16} />
         </button>

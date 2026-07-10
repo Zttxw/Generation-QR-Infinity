@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { ArrowLeft, Plus, QrCode, Image as ImageIcon } from 'lucide-react'
+import { ArrowLeft, Plus, QrCode, Image as ImageIcon, Download } from 'lucide-react'
 import QRCard from './components/QRCard'
 
 export default function ProjectDetail({ project, onBack }: { project: any, onBack: () => void }) {
@@ -109,6 +109,29 @@ export default function ProjectDetail({ project, onBack }: { project: any, onBac
     setShowModal(true)
   }
 
+  const handleExportBatch = async () => {
+    if (qrs.length === 0) return
+    const files: {filename: string, content: string}[] = []
+    
+    for (const qr of qrs) {
+      const wrapper = document.getElementById(`qr-wrapper-${qr.id}`)
+      if (wrapper) {
+        const svgElement = wrapper.querySelector('svg')
+        if (svgElement) {
+          files.push({
+            filename: qr.name,
+            content: new XMLSerializer().serializeToString(svgElement)
+          })
+        }
+      }
+    }
+    
+    if (files.length > 0) {
+      const count = await window.api.fs.exportBatch(files)
+      if (count > 0) alert(`Se exportaron ${count} códigos QR correctamente.`)
+    }
+  }
+
   return (
     <div className="container">
       <header className="header">
@@ -118,9 +141,14 @@ export default function ProjectDetail({ project, onBack }: { project: any, onBac
           </button>
           <h1>{project.name}</h1>
         </div>
-        <button className="btn-primary" onClick={openCreateModal}>
-          <Plus size={18} /> Nuevo QR
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button className="btn-secondary" onClick={handleExportBatch} disabled={qrs.length === 0}>
+            <Download size={18} /> Exportar Lote
+          </button>
+          <button className="btn-primary" onClick={openCreateModal}>
+            <Plus size={18} /> Nuevo QR
+          </button>
+        </div>
       </header>
 
       <main className="projects-grid">
