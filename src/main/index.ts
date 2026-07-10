@@ -120,6 +120,20 @@ app.whenReady().then(() => {
     return true;
   })
 
+  ipcMain.handle('fs:export-png', async (_, filename: string, dataUrl: string) => {
+    const { canceled, filePath } = await dialog.showSaveDialog({
+      title: 'Exportar Código QR (PNG)',
+      defaultPath: `${filename}.png`,
+      filters: [{ name: 'Imagen PNG', extensions: ['png'] }]
+    })
+    
+    if (canceled || !filePath) return false;
+    
+    const base64Data = dataUrl.replace(/^data:image\/png;base64,/, "");
+    writeFileSync(filePath, base64Data, 'base64');
+    return true;
+  })
+
   ipcMain.handle('fs:export-batch', async (_, files: {filename: string, content: string}[]) => {
     const { canceled, filePaths } = await dialog.showOpenDialog({
       title: 'Seleccionar Carpeta para Exportación en Lote',

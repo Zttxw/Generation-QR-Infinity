@@ -16,6 +16,7 @@ const api = {
     selectLogo: () => ipcRenderer.invoke('fs:select-logo'),
     readImage: (path: string) => ipcRenderer.invoke('fs:read-image', path),
     exportSvg: (filename: string, svgContent: string) => ipcRenderer.invoke('fs:export-svg', filename, svgContent),
+    exportPng: (filename: string, dataUrl: string) => ipcRenderer.invoke('fs:export-png', filename, dataUrl),
     exportBatch: (files: any[]) => ipcRenderer.invoke('fs:export-batch', files)
   }
 }

@@ -32,6 +32,7 @@ export interface FsAPI {
   selectLogo: () => Promise<string | null>;
   readImage: (path: string) => Promise<string | null>;
   exportSvg: (filename: string, svgContent: string) => Promise<boolean>;
+  exportPng: (filename: string, dataUrl: string) => Promise<boolean>;
   exportBatch: (files: {filename: string, content: string}[]) => Promise<number>;
 }
 
