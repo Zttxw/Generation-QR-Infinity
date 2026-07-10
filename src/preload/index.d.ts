@@ -26,11 +26,17 @@ export interface DbAPI {
   getQRsByProject: (projectId: number) => Promise<QR[]>;
 }
 
+export interface FsAPI {
+  selectLogo: () => Promise<string | null>;
+  readImage: (path: string) => Promise<string | null>;
+}
+
 declare global {
   interface Window {
     electron: ElectronAPI
     api: {
-      db: DbAPI
+      db: DbAPI,
+      fs: FsAPI
     }
   }
 }

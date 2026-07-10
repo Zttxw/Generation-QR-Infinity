@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { ArrowLeft, Plus, QrCode } from 'lucide-react'
-import { QRCodeSVG } from 'qrcode.react'
+import { ArrowLeft, Plus, QrCode, Image as ImageIcon } from 'lucide-react'
+import QRCard from './components/QRCard'
 
 export default function ProjectDetail({ project, onBack }: { project: any, onBack: () => void }) {
   const [qrs, setQrs] = useState<any[]>([])
@@ -8,6 +8,9 @@ export default function ProjectDetail({ project, onBack }: { project: any, onBac
   
   const [name, setName] = useState('')
   const [url, setUrl] = useState('')
+  const [colorFg, setColorFg] = useState('#000000')
+  const [colorBg, setColorBg] = useState('#ffffff')
+  const [logoPath, setLogoPath] = useState<string | null>(null)
   const [error, setError] = useState('')
 
   const loadQRs = async () => {
@@ -37,10 +40,16 @@ export default function ProjectDetail({ project, onBack }: { project: any, onBac
       await window.api.db.createQR({
         name: name.trim(),
         url: url.trim(),
-        project_id: project.id
+        project_id: project.id,
+        color_fg: colorFg,
+        color_bg: colorBg,
+        logo_path: logoPath || undefined
       })
       setName('')
       setUrl('')
+      setColorFg('#000000')
+      setColorBg('#ffffff')
+      setLogoPath(null)
       setShowModal(false)
       loadQRs()
     } catch (err: any) {
@@ -70,22 +79,7 @@ export default function ProjectDetail({ project, onBack }: { project: any, onBac
           </div>
         ) : (
           qrs.map((qr) => (
-            <div key={qr.id} className="project-card" style={{ alignItems: 'center', textAlign: 'center' }}>
-              <div style={{ background: 'white', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>
-                <QRCodeSVG 
-                  value={qr.url} 
-                  size={180} 
-                  level="H" 
-                  includeMargin={false} 
-                />
-              </div>
-              <h3 style={{ margin: '0' }}>{qr.name}</h3>
-              <p className="date" style={{ marginTop: '0.5rem', wordBreak: 'break-all' }}>{qr.url}</p>
-              <div className="actions" style={{ width: '100%', justifyContent: 'center', marginTop: '1rem' }}>
-                <button className="btn-secondary">Editar</button>
-                <button className="btn-primary">Exportar</button>
-              </div>
-            </div>
+            <QRCard key={qr.id} qr={qr} />
           ))
         )}
       </main>
@@ -116,6 +110,30 @@ export default function ProjectDetail({ project, onBack }: { project: any, onBac
                   if (e.target.value.length <= 250) setUrl(e.target.value)
                 }}
               />
+              
+              <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Color QR</label>
+                  <input type="color" value={colorFg} onChange={(e) => setColorFg(e.target.value)} style={{ padding: '0', height: '40px', cursor: 'pointer' }} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Color Fondo</label>
+                  <input type="color" value={colorBg} onChange={(e) => setColorBg(e.target.value)} style={{ padding: '0', height: '40px', cursor: 'pointer' }} />
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '2rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Logo (Opcional)</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                  <button type="button" className="btn-secondary" onClick={async () => {
+                    const path = await window.api.fs.selectLogo();
+                    if (path) setLogoPath(path);
+                  }}>
+                    <ImageIcon size={18} /> Seleccionar Logo Local
+                  </button>
+                  {logoPath && <span style={{ fontSize: '0.8rem', color: 'var(--primary)' }}>Logo cargado listo ✓</span>}
+                </div>
+              </div>
               
               <div className="modal-actions">
                 <button type="button" className="btn-ghost" onClick={() => { setShowModal(false); setError(''); }}>Cancelar</button>

@@ -1,5 +1,7 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
-import { join } from 'path'
+import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
+import { join, extname } from 'path'
+import { copyFileSync, mkdirSync, readFileSync } from 'fs'
+import { randomUUID } from 'crypto'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import Database from 'better-sqlite3'
 import { initDB, createProject, getProjects, deleteProject } from './db/projects'
@@ -64,6 +66,42 @@ app.whenReady().then(() => {
   // IPC handlers para QRs
   ipcMain.handle('db:create-qr', (_, data) => createQR(db, data))
   ipcMain.handle('db:get-qrs-by-project', (_, projectId: number) => getQRsByProject(db, projectId))
+
+  // IPC handlers para File System (Logos)
+  ipcMain.handle('fs:select-logo', async () => {
+    const { canceled, filePaths } = await dialog.showOpenDialog({
+      title: 'Seleccionar Logo',
+      properties: ['openFile'],
+      filters: [{ name: 'Imágenes', extensions: ['png', 'jpg', 'jpeg', 'svg'] }]
+    })
+    
+    if (canceled || filePaths.length === 0) return null;
+    
+    const sourcePath = filePaths[0];
+    const extension = extname(sourcePath);
+    const uniqueFileName = `${randomUUID()}${extension}`;
+    const uploadsDir = join(app.getPath('userData'), 'local_uploads');
+    
+    mkdirSync(uploadsDir, { recursive: true });
+    const destPath = join(uploadsDir, uniqueFileName);
+    copyFileSync(sourcePath, destPath);
+    
+    return destPath;
+  })
+
+  ipcMain.handle('fs:read-image', (_, filePath: string) => {
+    try {
+      const buffer = readFileSync(filePath);
+      const extension = extname(filePath).toLowerCase().replace('.', '');
+      let mimeType = 'image/png';
+      if (extension === 'jpg' || extension === 'jpeg') mimeType = 'image/jpeg';
+      if (extension === 'svg') mimeType = 'image/svg+xml';
+      
+      return `data:${mimeType};base64,${buffer.toString('base64')}`;
+    } catch (e) {
+      return null;
+    }
+  })
 
   ipcMain.on('ping', () => console.log('pong'))
 
