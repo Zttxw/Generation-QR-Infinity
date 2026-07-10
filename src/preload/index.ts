@@ -1,8 +1,14 @@
-import { contextBridge } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
 // Custom APIs for renderer
-const api = {}
+const api = {
+  db: {
+    getProjects: () => ipcRenderer.invoke('db:get-projects'),
+    createProject: (name: string) => ipcRenderer.invoke('db:create-project', name),
+    deleteProject: (id: number) => ipcRenderer.invoke('db:delete-project', id)
+  }
+}
 
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise

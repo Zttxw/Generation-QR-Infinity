@@ -1,7 +1,13 @@
 import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
+import Database from 'better-sqlite3'
+import { initDB, createProject, getProjects, deleteProject } from './db/projects'
 import icon from '../../resources/icon.png?asset'
+
+const dbPath = join(app.getPath('userData'), 'qr-eterno.sqlite')
+const db = new Database(dbPath)
+initDB(db)
 
 function createWindow(): void {
   // Create the browser window.
@@ -49,7 +55,11 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // IPC test
+  // IPC handlers para Proyectos
+  ipcMain.handle('db:get-projects', () => getProjects(db))
+  ipcMain.handle('db:create-project', (_, name: string) => createProject(db, name))
+  ipcMain.handle('db:delete-project', (_, id: number) => deleteProject(db, id))
+
   ipcMain.on('ping', () => console.log('pong'))
 
   createWindow()

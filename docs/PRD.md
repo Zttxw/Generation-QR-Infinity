@@ -7,7 +7,7 @@ Una aplicación de escritorio para áreas organizacionales (contabilidad, tesore
 - **Generación de QR estático:** Creación de QR donde el contenido (estrictamente URLs) se codifica directamente en la imagen, forzando la salida a formato SVG real.
 - **Organización en Proyectos:** Agrupación de los QRs generados dentro de proyectos nombrados.
 - **Historial local:** Almacenamiento y persistencia del historial en una base de datos local (SQLite).
-- **Edición de Metadatos:** Edición del nombre del QR, notas y asignación de proyecto (aclaración: esto no modifica el destino URL ni regenera el gráfico; un destino diferente requiere un QR nuevo).
+- **Gestión y Edición de Metadatos:** Edición del nombre del QR, notas y asignación de proyecto (aclaración: esto no modifica el destino URL ni regenera el gráfico). Incluye también la **eliminación definitiva** de proyectos y de QRs.
 - **Personalización Visual:** Capacidad para definir colores básicos y embeber un logo en el centro del QR. (Aclaración: El archivo del logo se seleccionará estrictamente desde el sistema de archivos local del usuario, no mediante URLs remotas, para garantizar el funcionamiento 100% offline).
 - **Exportación de Archivos:** 
   - Formatos soportados: SVG (para impresión de alta calidad) y PNG.
