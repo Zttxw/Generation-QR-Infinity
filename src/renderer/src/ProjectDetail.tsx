@@ -4,6 +4,7 @@ import QRCard from './components/QRCard'
 
 export default function ProjectDetail({ project, onBack }: { project: any, onBack: () => void }) {
   const [qrs, setQrs] = useState<any[]>([])
+  const [allProjects, setAllProjects] = useState<any[]>([])
   const [showModal, setShowModal] = useState(false)
   const [editingQR, setEditingQR] = useState<any | null>(null)
   const [qrToDelete, setQrToDelete] = useState<number | null>(null)
@@ -11,6 +12,7 @@ export default function ProjectDetail({ project, onBack }: { project: any, onBac
   const [name, setName] = useState('')
   const [url, setUrl] = useState('')
   const [notas, setNotas] = useState('')
+  const [selectedProjectId, setSelectedProjectId] = useState(project.id)
   const [colorFg, setColorFg] = useState('#000000')
   const [colorBg, setColorBg] = useState('#ffffff')
   const [logoPath, setLogoPath] = useState<string | null>(null)
@@ -21,8 +23,14 @@ export default function ProjectDetail({ project, onBack }: { project: any, onBac
     setQrs(list)
   }
 
+  const loadAllProjects = async () => {
+    const pList = await window.api.db.getProjects()
+    setAllProjects(pList)
+  }
+
   useEffect(() => {
     loadQRs()
+    loadAllProjects()
   }, [])
 
   const handleCreate = async (e: React.FormEvent) => {
@@ -43,13 +51,14 @@ export default function ProjectDetail({ project, onBack }: { project: any, onBac
       if (editingQR) {
         await window.api.db.updateQRMetadata(editingQR.id, {
           name: name.trim(),
-          notas: notas.trim()
+          notas: notas.trim(),
+          project_id: selectedProjectId
         })
       } else {
         await window.api.db.createQR({
           name: name.trim(),
           url: url.trim(),
-          project_id: project.id,
+          project_id: selectedProjectId,
           color_fg: colorFg,
           color_bg: colorBg,
           logo_path: logoPath || undefined,
@@ -84,6 +93,7 @@ export default function ProjectDetail({ project, onBack }: { project: any, onBac
     setName('')
     setUrl('')
     setNotas('')
+    setSelectedProjectId(project.id)
     setColorFg('#000000')
     setColorBg('#ffffff')
     setLogoPath(null)
@@ -95,6 +105,7 @@ export default function ProjectDetail({ project, onBack }: { project: any, onBac
     setName(qr.name)
     setUrl(qr.url) // Solo lectura
     setNotas(qr.notas || '')
+    setSelectedProjectId(qr.project_id)
     setShowModal(true)
   }
 
@@ -168,6 +179,21 @@ export default function ProjectDetail({ project, onBack }: { project: any, onBac
                 onChange={(e) => setNotas(e.target.value)}
                 style={{ width: '100%', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', color: 'white', padding: '0.75rem', borderRadius: '8px', marginBottom: '1.5rem', resize: 'vertical' }}
               />
+              
+              {editingQR && (
+                <>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Mover a Proyecto</label>
+                  <select 
+                    value={selectedProjectId}
+                    onChange={(e) => setSelectedProjectId(parseInt(e.target.value))}
+                    style={{ width: '100%', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', color: 'white', padding: '0.75rem', borderRadius: '8px', marginBottom: '1.5rem', cursor: 'pointer' }}
+                  >
+                    {allProjects.map(p => (
+                      <option key={p.id} value={p.id} style={{ color: 'black' }}>{p.name}</option>
+                    ))}
+                  </select>
+                </>
+              )}
               
               {!editingQR && (
                 <>
