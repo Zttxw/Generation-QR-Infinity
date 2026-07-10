@@ -5,7 +5,7 @@ import { randomUUID } from 'crypto'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import Database from 'better-sqlite3'
 import { initDB, createProject, getProjects, deleteProject } from './db/projects'
-import { createQR, getQRsByProject } from './db/qrs'
+import { createQR, getQRsByProject, updateQRMetadata, deleteQR } from './db/qrs'
 import icon from '../../resources/icon.png?asset'
 
 const dbPath = join(app.getPath('userData'), 'qr-eterno.sqlite')
@@ -66,6 +66,8 @@ app.whenReady().then(() => {
   // IPC handlers para QRs
   ipcMain.handle('db:create-qr', (_, data) => createQR(db, data))
   ipcMain.handle('db:get-qrs-by-project', (_, projectId: number) => getQRsByProject(db, projectId))
+  ipcMain.handle('db:update-qr-metadata', (_, id: number, updates: any) => updateQRMetadata(db, id, updates))
+  ipcMain.handle('db:delete-qr', (_, id: number) => deleteQR(db, id))
 
   // IPC handlers para File System (Logos)
   ipcMain.handle('fs:select-logo', async () => {

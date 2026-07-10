@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import Database from 'better-sqlite3'
 import { initDB, createProject } from './projects'
-import { createQR, getQRsByProject } from './qrs'
+import { createQR, getQRsByProject, updateQRMetadata, deleteQR } from './qrs'
 
 describe('Gestión de QRs (Base de Datos)', () => {
   let db: Database.Database;
@@ -51,5 +51,36 @@ describe('Gestión de QRs (Base de Datos)', () => {
         project_id: 9999
       });
     }).toThrow();
+  })
+
+  it('debería actualizar los metadatos de un QR sin afectar la URL', () => {
+    const qrId = createQR(db, {
+      name: 'QR Original',
+      url: 'https://test.com',
+      project_id: projectId
+    });
+    
+    updateQRMetadata(db, qrId, {
+      name: 'QR Modificado',
+      notas: 'Nota interna añadida'
+    });
+    
+    const qrs = getQRsByProject(db, projectId);
+    expect(qrs[0].name).toBe('QR Modificado');
+    expect(qrs[0].notas).toBe('Nota interna añadida');
+    expect(qrs[0].url).toBe('https://test.com'); // La URL permanece intacta
+  })
+
+  it('debería eliminar un QR de forma permanente', () => {
+    const qrId = createQR(db, {
+      name: 'QR a Borrar',
+      url: 'https://test.com',
+      project_id: projectId
+    });
+    
+    deleteQR(db, qrId);
+    
+    const qrs = getQRsByProject(db, projectId);
+    expect(qrs.length).toBe(0);
   })
 })

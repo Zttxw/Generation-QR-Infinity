@@ -8,7 +8,9 @@ const api = {
     createProject: (name: string) => ipcRenderer.invoke('db:create-project', name),
     deleteProject: (id: number) => ipcRenderer.invoke('db:delete-project', id),
     createQR: (data: any) => ipcRenderer.invoke('db:create-qr', data),
-    getQRsByProject: (projectId: number) => ipcRenderer.invoke('db:get-qrs-by-project', projectId)
+    getQRsByProject: (projectId: number) => ipcRenderer.invoke('db:get-qrs-by-project', projectId),
+    updateQRMetadata: (id: number, updates: any) => ipcRenderer.invoke('db:update-qr-metadata', id, updates),
+    deleteQR: (id: number) => ipcRenderer.invoke('db:delete-qr', id)
   },
   fs: {
     selectLogo: () => ipcRenderer.invoke('fs:select-logo'),

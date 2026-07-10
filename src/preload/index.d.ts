@@ -24,6 +24,8 @@ export interface DbAPI {
   deleteProject: (id: number) => Promise<void>;
   createQR: (data: Omit<QR, 'id' | 'created_at'>) => Promise<number>;
   getQRsByProject: (projectId: number) => Promise<QR[]>;
+  updateQRMetadata: (id: number, updates: Partial<Pick<QR, 'name' | 'notas' | 'project_id'>>) => Promise<void>;
+  deleteQR: (id: number) => Promise<void>;
 }
 
 export interface FsAPI {

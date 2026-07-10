@@ -39,3 +39,38 @@ export function getQRsByProject(db: Database, projectId: number): QR[] {
   const stmt = db.prepare('SELECT * FROM qrs WHERE project_id = ? ORDER BY created_at DESC');
   return stmt.all(projectId) as QR[];
 }
+
+export function deleteQR(db: Database, id: number): void {
+  const stmt = db.prepare('DELETE FROM qrs WHERE id = ?');
+  stmt.run(id);
+}
+
+export function updateQRMetadata(
+  db: Database, 
+  id: number, 
+  updates: Partial<Pick<QR, 'name' | 'notas' | 'project_id'>>
+): void {
+  const setClauses: string[] = [];
+  const values: any[] = [];
+  
+  if (updates.name !== undefined) {
+    setClauses.push('name = ?');
+    values.push(updates.name);
+  }
+  if (updates.notas !== undefined) {
+    setClauses.push('notas = ?');
+    values.push(updates.notas);
+  }
+  if (updates.project_id !== undefined) {
+    setClauses.push('project_id = ?');
+    values.push(updates.project_id);
+  }
+  
+  if (setClauses.length === 0) return;
+  
+  values.push(id);
+  const query = `UPDATE qrs SET ${setClauses.join(', ')} WHERE id = ?`;
+  
+  const stmt = db.prepare(query);
+  stmt.run(...values);
+}
